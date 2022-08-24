@@ -336,8 +336,23 @@ class Recorder:
                             else:
                                 bounced_back_dict[player].append(token)
                                 self._stacked_tracker[player][token] = False
-            print(bounced_back_dict, 'bounced back dict')
             return bounced_back_dict
+
+    def stacked_check(self, player, token, position):
+        player_name = player.get_player_position()
+        for token1 in self._current_positions[player_name]:
+            if token1 == token:
+                pass
+            elif self._current_positions[player_name][token1][0] == position:
+                self._stacked_tracker = True
+
+    def moving_algorithm(self, player):
+        player_name = player.get_player_position()
+        for token1 in self._current_positions[player_name]:
+            if token1 == token:
+                pass
+            elif self._current_positions[player_name][token1][0] == position:
+                self._stacked_tracker = True
 
     def get_player_by_position(self, position):
         '''Gets the player object based on a passed in player position'''
@@ -352,7 +367,7 @@ class Recorder:
                 if player.get_player_position() == position:
                     return player
 
-    def moving_algorithm(self, player, roll=None):
+    def moving_algorithm2(self, player, roll=None):
         '''Algorithm that decides which of a player's tokens should be moved'''
         this_player_p_position = player.get_token_position('p')
         this_player_q_position = player.get_token_position('q')
@@ -464,7 +479,6 @@ class Recorder:
 
             elif self._current_positions[player_name][token][0] != 'H':
                 previous_spot = player.get_token_dict()[token]['step count']
-                print(previous_spot, 'previous spot')
 
                 if previous_spot == 59:
                     pass
@@ -483,9 +497,10 @@ class Recorder:
         return moves_dict
 
 
-    def move_token(self, player, token, position, cyan_square, player_color, player_outline):
+    def move_token(self, player, token, position, player_color, player_outline):
         print('move to', position)
         lookup = spaces[position]
+        player_name = player.get_player_position()
         canvas_1.delete(self._current_positions[player.get_player_position()][token][1])
         for square in r1._cyan_squares_list:
             canvas_1.delete(square) # clears out cyan squares indicating possible moves from the board
@@ -493,7 +508,6 @@ class Recorder:
         ending_position = self._current_positions[player.get_player_position()][token][0]
         bounced = self.same_space_check(player, token, ending_position)
         if bounced is not None:
-            print(bounced, 'bounced')
             for name in bounced:
                 for player1 in self.get_players():
                     if name == player1.get_player_position():
@@ -516,7 +530,22 @@ class Recorder:
                                                                5])
 
                             self._current_positions[name][token][1] = my_oval
-        #player.update_position_and_steps(token, self._rolls[-1])
+
+
+        if self._current_positions[player_name]['p'][0] != 'H' and self._current_positions[player_name]['p'][0] == self._current_positions[player_name]['q'][0]:
+            canvas_1.delete(self._current_positions[player_name]['p'][1])
+            canvas_1.delete(self._current_positions[player_name]['q'][1])
+            my_oval = canvas_1.create_oval(lookup[0], lookup[1],
+                                           lookup[2], lookup[3],
+                                           fill=player_color, outline=player_outline)
+            my_oval2 = canvas_1.create_oval(lookup[0], lookup[1] - 10,
+                                            lookup[2], lookup[3] - 10,
+                                            fill=player_color, outline=player_outline)
+            self._current_positions[player_name]['p'][1] = my_oval
+            self._current_positions[player_name]['q'][1] = my_oval2
+            self._stacked_tracker[player_name]['p'] = True
+            self._stacked_tracker[player_name]['q'] = True
+
 
     def move(self, roll, player):
         spaces = {
@@ -551,8 +580,7 @@ class Recorder:
         canvas_1.delete(self._current_outline) # deletes last player's cyan circle and creates a new one for the player whose turn it is
         current_outline = canvas_1.create_oval(outline_dict[player][0], outline_dict[player][1], outline_dict[player][2], outline_dict[player][3], fill='', outline='cyan', width=7.5)
         self._current_outline = current_outline
-        player_colors = {'A': 'navy', 'B': 'red3', 'C': 'dark green', 'D':'yellow2'}
-        player_outlines = {'A': 'white', 'B': 'white', 'C': 'white', 'D':'black'}
+
         current_player = r1.get_player_by_position(player)
 
         if current_player._step_count == 59:
@@ -730,19 +758,17 @@ def roller():
     text.place(x=340, y =10)
     current_roll = dice_values[current_roll]
     r1.record_roll(current_roll)
-    print(r1._rolls, 'rolls list')
+
     r1._player_turn = player_name
     print(player_name, current_roll, 'current player and roll')
     print(r1._current_positions[player_name])
     possible_moves = r1.possible_moves(player_name, current_roll)
-    player = r1.get_player_by_position(player_name)
+
     r1._current_possible_moves = possible_moves
     global cyan_square
     for position in possible_moves:
-        print(position, 'is possible by token ', possible_moves[position])
         position = str(position)
         print(r1._current_positions, 'current positiones')
-        print(spaces_rectangle[position][0], spaces_rectangle[position][1], 'spaces rectangle')
         cyan_square = canvas_1.create_rectangle(spaces_rectangle[position][0], spaces_rectangle[position][1], spaces_rectangle[position][2], spaces_rectangle[position][3], fill='', outline='cyan', width=5)
         r1._cyan_squares_list.append(cyan_square)
 
@@ -760,13 +786,12 @@ def get_click(event):
     for move in possible_moves:
         possible_clickable_spaces[possible_moves[move]] = (spaces_rectangle[str(move)])
 
-    piece = None
     global x, y, count
     x = event.x
     y = event.y
     if 5 < x < 85 and 1 < y < 20:
         count = count + 1
-    print(x, y, 'x and y')
+
     count1 = 0
     current_roll = r1._rolls[-1]
     for item in possible_clickable_spaces:
@@ -781,7 +806,21 @@ def get_click(event):
                 player_outline = 'black'
             player_colors = {'A': 'navy', 'B': 'red3', 'C': 'dark green', 'D':'yellow2'}
             print(r1._current_positions, 'get click current positions')
-            r1.move_token(player, token, r1._current_positions[player_name][token][0], cyan_square, player_color, player_outline)
+            print(r1._stacked_tracker)
+            if r1._stacked_tracker[player_name][token] == True:
+                print('move_stack')
+                if token == 'p':
+                    other_token = 'q'
+                else:
+                    other_token = 'p'
+                r1.move_token(player, token, r1._current_positions[player_name][token][0], player_color,
+                              player_outline)
+                player.update_position_and_steps(other_token, current_roll)
+                r1.update_current_position(player, other_token)
+                r1.move_token(player, other_token, r1._current_positions[player_name][other_token][0], player_color,
+                              player_outline)
+            else:
+                r1.move_token(player, token, r1._current_positions[player_name][token][0], player_color, player_outline)
             #print('clicked in a possible space!!!', possible_moves[count1])
         count1 += 1
 
