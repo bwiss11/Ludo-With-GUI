@@ -177,19 +177,22 @@ class Player:
         '''Updates the step count and position of the given token'''
         previous_spot = self.get_token_dict()[token_name]['step count']
         print(previous_spot, 'previous spot')
-        if previous_spot == 0:
-            self.get_token_dict()[token_name]['step count'] = 1
-            self.get_token_dict()[token_name]['position'] = self.get_start_space()
+        if previous_spot == 59:
+            pass
         else:
-            self.get_token_dict()[token_name]['step count'] += steps
-            step_count = self.get_token_dict()[token_name]['step count']
+            if previous_spot == 0:
+                self.get_token_dict()[token_name]['step count'] = 1
+                self.get_token_dict()[token_name]['position'] = self.get_start_space()
+            else:
+                self.get_token_dict()[token_name]['step count'] += steps
+                step_count = self.get_token_dict()[token_name]['step count']
 
-            if step_count > 59: # handles the step count when it goes over 57
-                step_count = 59 - (steps - (59 - (previous_spot)))
-                self.get_token_dict()[token_name]['step count'] = step_count
+                if step_count > 59: # handles the step count when it goes over 57
+                    step_count = 59 - (steps - (59 - (previous_spot)))
+                    self.get_token_dict()[token_name]['step count'] = step_count
 
-            current_space = self.get_space_name_int(step_count)
-            self.get_token_dict()[token_name]['position'] = current_space # updates the token's position to the current space via the get_space_name() method
+                current_space = self.get_space_name_int(step_count)
+                self.get_token_dict()[token_name]['position'] = current_space # updates the token's position to the current space via the get_space_name() method
 
     def add_token(self, token_object):
         self._token = token_object
@@ -227,6 +230,7 @@ class Recorder:
         self._current_possible_moves = []
         self._player_turn = None
         self._cyan_squares_list = []
+        self._blocked_spaces = {}
         self._starting_token_dict = {'A': {'p': [167.5 ,167.5, 189, 189, 'navy', 'white'], 'q': [223.5,167.5, 245, 189, 'navy', 'white'], 'r':[167.5 ,224.5, 189, 246, 'navy','white'], 's': [223.5 ,224.5, 245, 246, 'navy','white']},
         'B': {'p': [501.75 ,167.5, 523.25, 189, 'red3', 'white'], 'q': [557.75 ,167.5, 579.25, 189, 'red3', 'white'], 'r':[501.75 ,224.5, 523.25, 246, 'red3', 'white'], 's': [557.75 ,224.5, 579.25, 246, 'red3', 'white']},
         'C': {'p': [501.75, 502, 523.25, 523.5, 'dark green', 'white'], 'q': [557.75, 502, 579.25, 523.5, 'dark green', 'white'], 'r':[501.75, 559, 523.25, 580.5, 'dark green', 'white'], 's': [557.75, 559, 579.25, 580.5, 'dark green', 'white']},
@@ -378,6 +382,20 @@ class Recorder:
                                 self._stacked_tracker[player][token] = [False, None]
             return bounced_back_dict
 
+    def blocked_spaces(self):
+        for player in self._stacked_tracker:
+            for token in self._stacked_tracker[player]:
+                if self._stacked_tracker[player][token][0] == True:
+                    space = self._current_positions[player][token][0]
+                    self._blocked_spaces[space] = player
+                    # need to write in numbers over 52
+                    if int(space) - r1._rolls[-1] < 1:
+                        previous_space = 51 + int(space) - r1._rolls[-1]
+                    else:
+                        previous_space = int(space) - r1._rolls[-1]
+                    if str(previous_space) in self._blocked_spaces:
+                        del(self._blocked_spaces[str(previous_space)])
+
     def stacked_check(self, player, token, position):
         player_name = player.get_player_position()
         for token1 in self._current_positions[player_name]:
@@ -427,7 +445,7 @@ class Recorder:
                 if self.get_player_by_position(player_name).get_start_space() in moves_dict:
                     pass # avoids adding the same position to the moves list and thus moving the token twice
                 else:
-                    moves_dict[player.get_start_space()] = token
+                    moves_dict[str(player.get_start_space())] = token
 
             elif self._current_positions[player_name][token][0] != 'H':
                 previous_spot = player.get_token_dict()[token]['step count']
@@ -444,7 +462,7 @@ class Recorder:
 
                 if potential_new_step_count is not None:
                     potential_new_space = player.get_space_name_int(potential_new_step_count)
-                    moves_dict[potential_new_space] = token
+                    moves_dict[str(potential_new_space)] = token
 
         return moves_dict
 
@@ -456,7 +474,7 @@ class Recorder:
         return stacked_list
 
     def move_token(self, player, token, position, player_color, player_outline):
-        print('move to', position)
+        print('move token',token,'to position', position)
         lookup = spaces[position]
         player_name = player.get_player_position()
         canvas_1.delete(self._current_positions[player.get_player_position()][token][1])
@@ -499,7 +517,7 @@ class Recorder:
                     pass
                 elif self._current_positions[player_name][token1][0] == ending_position and self._stacked_tracker[player_name][token1][0] == False:
                     other_token = token1
-
+        print(token, 'is token and other token is', other_token)
         if self._current_positions[player_name][token][0] != 'H' and other_token is not None:
             canvas_1.delete(self._current_positions[player_name][token][1])
             canvas_1.delete(self._current_positions[player_name][other_token][1])
@@ -735,12 +753,31 @@ def roller():
     possible_moves = r1.possible_moves(player_name, current_roll)
 
     r1._current_possible_moves = possible_moves
+    r1.blocked_spaces()
+    spaces_blocked_by_others = [key for key,value in r1._blocked_spaces.items() if value != player_name]
+
     global cyan_square
+    global blocked_moves
+    blocked_moves = []
+    print(spaces_blocked_by_others, 'spaces blocked by others')
+    print(possible_moves, 'possible moves')
     for position in possible_moves:
-        position = str(position)
-        print(r1._current_positions, 'current positiones')
-        cyan_square = canvas_1.create_rectangle(spaces_rectangle[position][0], spaces_rectangle[position][1], spaces_rectangle[position][2], spaces_rectangle[position][3], fill='', outline='cyan', width=5)
-        r1._cyan_squares_list.append(cyan_square)
+        for blocked_spot in spaces_blocked_by_others:
+            if blocked_spot == str(position):
+                print('same position', blocked_spot)
+                pass
+            elif int(position) > int(blocked_spot):
+                if int(position) - r1._rolls[-1] < int(blocked_spot):
+                    blocked_moves.append(position)
+
+        if len(blocked_moves) == 0:
+            position = str(position)
+            print(r1._current_positions, 'current positiones')
+            cyan_square = canvas_1.create_rectangle(spaces_rectangle[position][0], spaces_rectangle[position][1], spaces_rectangle[position][2], spaces_rectangle[position][3], fill='', outline='cyan', width=5)
+            r1._cyan_squares_list.append(cyan_square)
+        else:
+            pass
+
 
 
 
@@ -752,8 +789,16 @@ def get_click(event):
     player = r1.get_player_by_position(player_name)
     possible_moves = r1.possible_moves(player_name, r1._rolls[-1])
     possible_clickable_spaces = {}
+    r1.blocked_spaces()
+    print(r1._blocked_spaces)
+    # code marker
+    print(blocked_moves, 'blocked moves')
+    print(possible_moves, 'possible moves')
     for move in possible_moves:
-        possible_clickable_spaces[possible_moves[move]] = (spaces_rectangle[str(move)])
+        if move not in blocked_moves:
+            possible_clickable_spaces[possible_moves[move]] = (spaces_rectangle[str(move)])
+    print(possible_clickable_spaces, 'possible clickable spaces')
+
 
     global x, y, count
     x = event.x
@@ -763,6 +808,7 @@ def get_click(event):
 
     count1 = 0
     current_roll = r1._rolls[-1]
+    print(possible_clickable_spaces)
     for item in possible_clickable_spaces:
         if possible_clickable_spaces[item][0] < x < possible_clickable_spaces[item][2] and possible_clickable_spaces[item][1] < y < possible_clickable_spaces[item][3]:
             token = item
@@ -787,8 +833,18 @@ def get_click(event):
             else:
                 r1.move_token(player, token, r1._current_positions[player_name][token][0], player_color, player_outline)
             #print('clicked in a possible space!!!', possible_moves[count1])
+        print(possible_clickable_spaces, 'possible clickable spaces')
+        print()
         print(r1._current_positions, 'get click current positions')
-        print(r1._stacked_tracker)
+        print()
+        print(r1._stacked_tracker, 'stacked tracker')
+        r1.blocked_spaces()
+        print()
+        print(r1._blocked_spaces, 'blocked spaces')
+        print()
+        print()
+        print()
+        print()
         count1 += 1
 
 root.bind("<Button-1>", get_click)
