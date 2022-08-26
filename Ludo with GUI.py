@@ -94,7 +94,7 @@ class Player:
         end_position_dictionary = {'A': 50, 'B': 8, 'C': 36, 'D': 22}
         self._start_space = start_position_dictionary[player_position]
         self._end_space = end_position_dictionary[player_position]
-        self._token_info = {'p':{'position':'H','step count':0},'q':{'position':'H','step count':0}}
+        self._token_info = {'p':{'position':'H','step count':0},'q':{'position':'H','step count':0}, 'r':{'position':'H','step count':0}, 's':{'position':'H','step count':0}}
         self._player_position = player_position
         self._completed = False
         self._step_count = 0
@@ -115,14 +115,6 @@ class Player:
     def get_completed(self):
         '''Returns whether the player has completed the game'''
         return self._completed
-
-    def get_token_p_step_count(self):
-        '''Returns the number of steps token p has taken, used to find the token's current position on the board'''
-        return self.get_token_dict()['p']['step count']
-
-    def get_token_q_step_count(self):
-        '''Returns the number of steps token q has taken, used to find the token's current position on the board'''
-        return self.get_token_dict()['q']['step count']
 
     def get_token_step_count(self, token):
         '''Returns the number of steps a passed in token has taken, variation of the above two methods which is more flexible'''
@@ -210,7 +202,7 @@ class Player:
 
 
 
-
+canvas_1.create_oval(167.5 ,224.5, 189, 246, fill='navy', outline='white')
 
 
 
@@ -224,8 +216,10 @@ class Recorder:
         for player in player_list:
             self._players.append(Player(player))
             self._stacked_tracker[player] = {}
-            self._stacked_tracker[player]['p'] = False
-            self._stacked_tracker[player]['q'] = False
+            self._stacked_tracker[player]['p'] = [False, None]
+            self._stacked_tracker[player]['q'] = [False, None]
+            self._stacked_tracker[player]['r'] = [False, None]
+            self._stacked_tracker[player]['s'] = [False, None]
         self._current_outline = None
         self._winner = None
         self._current_click = []
@@ -233,10 +227,10 @@ class Recorder:
         self._current_possible_moves = []
         self._player_turn = None
         self._cyan_squares_list = []
-        self._starting_token_dict = {'A': {'p': [167.5 ,167.5, 189, 189, 'navy', 'white'], 'q': [223.5,167.5, 245, 189, 'navy', 'white']},
-        'B': {'p': [501.75 ,167.5, 523.25, 189, 'red3', 'white'], 'q': [557.75 ,167.5, 579.25, 189, 'red3', 'white']},
-        'C': {'p': [501.75, 502, 523.25, 523.5, 'dark green', 'white'], 'q': [557.75, 502, 579.25, 523.5, 'dark green', 'white']},
-        'D': {'p': [168 ,502, 189.5, 523.5, 'yellow2', 'black'], 'q': [224 ,502, 245.5, 523.5, 'yellow2', 'black']}}
+        self._starting_token_dict = {'A': {'p': [167.5 ,167.5, 189, 189, 'navy', 'white'], 'q': [223.5,167.5, 245, 189, 'navy', 'white'], 'r':[167.5 ,224.5, 189, 246, 'navy','white'], 's': [223.5 ,224.5, 245, 246, 'navy','white']},
+        'B': {'p': [501.75 ,167.5, 523.25, 189, 'red3', 'white'], 'q': [557.75 ,167.5, 579.25, 189, 'red3', 'white'], 'r':[501.75 ,224.5, 523.25, 246, 'red3', 'white'], 's': [557.75 ,224.5, 579.25, 246, 'red3', 'white']},
+        'C': {'p': [501.75, 502, 523.25, 523.5, 'dark green', 'white'], 'q': [557.75, 502, 579.25, 523.5, 'dark green', 'white'], 'r':[501.75, 559, 523.25, 580.5, 'dark green', 'white'], 's': [557.75, 559, 579.25, 580.5, 'dark green', 'white']},
+        'D': {'p': [168 ,502, 189.5, 523.5, 'yellow2', 'black'], 'q': [224 ,502, 245.5, 523.5, 'yellow2', 'black'], 'r':[168 ,559, 189.5, 580.5, 'yellow2', 'black'], 's': [224 ,559, 245.5, 580.5, 'yellow2', 'black']}}
         self._vertical_stack_spaces = ['1', '2', '3', '4', '5', '12', '19', '20', '21', '22', '23', '24', '26', '27', '28', '29', '30', '31',
                                        '38', '45', '46', '47', '48', '49', '50',
                                        '52', 'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7']
@@ -247,7 +241,9 @@ class Recorder:
         # C_token_2 = canvas_1.create_oval(224 ,502, 245.5, 523.5, fill = 'yellow2', outline = 'white')
 
         self._current_positions = {'A':{'p':['H', canvas_1.create_oval(self._starting_token_dict['A']['p'][0], self._starting_token_dict['A']['p'][1], self._starting_token_dict['A']['p'][2], self._starting_token_dict['A']['p'][3], fill = self._starting_token_dict['A']['p'][4], outline = self._starting_token_dict['A']['p'][5])],
-                                                                       'q':['H', canvas_1.create_oval(self._starting_token_dict['A']['q'][0], self._starting_token_dict['A']['q'][1], self._starting_token_dict['A']['q'][2], self._starting_token_dict['A']['q'][3], fill = self._starting_token_dict['A']['p'][4], outline = self._starting_token_dict['A']['p'][5])]},
+                                                                       'q':['H', canvas_1.create_oval(self._starting_token_dict['A']['q'][0], self._starting_token_dict['A']['q'][1], self._starting_token_dict['A']['q'][2], self._starting_token_dict['A']['q'][3], fill = self._starting_token_dict['A']['p'][4], outline = self._starting_token_dict['A']['p'][5])],
+                                        'r': ['H', canvas_1.create_oval(self._starting_token_dict['A']['r'][0], self._starting_token_dict['A']['r'][1], self._starting_token_dict['A']['r'][2], self._starting_token_dict['A']['r'][3], fill = self._starting_token_dict['A']['r'][4], outline = self._starting_token_dict['A']['r'][5])],
+                                   's': ['H', canvas_1.create_oval(self._starting_token_dict['A']['s'][0], self._starting_token_dict['A']['s'][1], self._starting_token_dict['A']['s'][2], self._starting_token_dict['A']['s'][3], fill = self._starting_token_dict['A']['s'][4], outline = self._starting_token_dict['A']['s'][5])]},
                                    'B': {'p': ['H', canvas_1.create_oval(self._starting_token_dict['B']['p'][0],
                                                                          self._starting_token_dict['B']['p'][1],
                                                                          self._starting_token_dict['B']['p'][2],
@@ -261,7 +257,22 @@ class Recorder:
                                                                          self._starting_token_dict['B']['q'][3],
                                                                          fill=self._starting_token_dict['B']['p'][4],
                                                                          outline=self._starting_token_dict['B']['p'][
-                                                                             5])]},
+                                                                             5])],
+                                         'r': ['H', canvas_1.create_oval(self._starting_token_dict['B']['r'][0],
+                                                                         self._starting_token_dict['B']['r'][1],
+                                                                         self._starting_token_dict['B']['r'][2],
+                                                                         self._starting_token_dict['B']['r'][3],
+                                                                         fill=self._starting_token_dict['B']['r'][4],
+                                                                         outline=self._starting_token_dict['B']['r'][
+                                                                             5])],
+                                         's': ['H', canvas_1.create_oval(self._starting_token_dict['B']['s'][0],
+                                                                         self._starting_token_dict['B']['s'][1],
+                                                                         self._starting_token_dict['B']['s'][2],
+                                                                         self._starting_token_dict['B']['s'][3],
+                                                                         fill=self._starting_token_dict['B']['s'][4],
+                                                                         outline=self._starting_token_dict['B']['s'][
+                                                                             5])]
+                                         },
                                    'C': {'p': ['H', canvas_1.create_oval(self._starting_token_dict['C']['p'][0],
                                                                          self._starting_token_dict['C']['p'][1],
                                                                          self._starting_token_dict['C']['p'][2],
@@ -275,7 +286,22 @@ class Recorder:
                                                                          self._starting_token_dict['C']['q'][3],
                                                                          fill=self._starting_token_dict['C']['p'][4],
                                                                          outline=self._starting_token_dict['C']['p'][
-                                                                             5])]},
+                                                                             5])],
+                                         'r': ['H', canvas_1.create_oval(self._starting_token_dict['C']['r'][0],
+                                                                         self._starting_token_dict['C']['r'][1],
+                                                                         self._starting_token_dict['C']['r'][2],
+                                                                         self._starting_token_dict['C']['r'][3],
+                                                                         fill=self._starting_token_dict['C']['r'][4],
+                                                                         outline=self._starting_token_dict['C']['r'][
+                                                                             5])],
+                                         's': ['H', canvas_1.create_oval(self._starting_token_dict['C']['s'][0],
+                                                                         self._starting_token_dict['C']['s'][1],
+                                                                         self._starting_token_dict['C']['s'][2],
+                                                                         self._starting_token_dict['C']['s'][3],
+                                                                         fill=self._starting_token_dict['C']['s'][4],
+                                                                         outline=self._starting_token_dict['C']['s'][
+                                                                             5])]
+                                         },
                                    'D': {'p': ['H', canvas_1.create_oval(self._starting_token_dict['D']['p'][0],
                                                                          self._starting_token_dict['D']['p'][1],
                                                                          self._starting_token_dict['D']['p'][2],
@@ -289,6 +315,20 @@ class Recorder:
                                                                          self._starting_token_dict['D']['q'][3],
                                                                          fill=self._starting_token_dict['D']['p'][4],
                                                                          outline=self._starting_token_dict['D']['p'][
+                                                                             5])],
+                                         'r':['H', canvas_1.create_oval(self._starting_token_dict['D']['r'][0],
+                                                                         self._starting_token_dict['D']['r'][1],
+                                                                         self._starting_token_dict['D']['r'][2],
+                                                                         self._starting_token_dict['D']['r'][3],
+                                                                         fill=self._starting_token_dict['D']['r'][4],
+                                                                         outline=self._starting_token_dict['D']['r'][
+                                                                             5])],
+                                         's':['H', canvas_1.create_oval(self._starting_token_dict['D']['s'][0],
+                                                                         self._starting_token_dict['D']['s'][1],
+                                                                         self._starting_token_dict['D']['s'][2],
+                                                                         self._starting_token_dict['D']['s'][3],
+                                                                         fill=self._starting_token_dict['D']['s'][4],
+                                                                         outline=self._starting_token_dict['D']['s'][
                                                                              5])]}
                                    }
 
@@ -332,10 +372,10 @@ class Recorder:
                         if self._current_positions[player][token][0] == position:
                             if len(bounced_back_dict) == 0:
                                 bounced_back_dict[player] = [token]
-                                self._stacked_tracker[player][token] = False
+                                self._stacked_tracker[player][token] = [False, None]
                             else:
                                 bounced_back_dict[player].append(token)
-                                self._stacked_tracker[player][token] = False
+                                self._stacked_tracker[player][token] = [False, None]
             return bounced_back_dict
 
     def stacked_check(self, player, token, position):
@@ -343,16 +383,16 @@ class Recorder:
         for token1 in self._current_positions[player_name]:
             if token1 == token:
                 pass
-            elif self._current_positions[player_name][token1][0] == position:
-                self._stacked_tracker = True
+            elif self._current_positions[player_name][token1][0] == position and self._stacked_checker[player_name][token1][0] == False:
+                self._stacked_tracker = [True, token1]
 
-    def moving_algorithm(self, player):
-        player_name = player.get_player_position()
-        for token1 in self._current_positions[player_name]:
-            if token1 == token:
-                pass
-            elif self._current_positions[player_name][token1][0] == position:
-                self._stacked_tracker = True
+    # def moving_algorithm(self, player):
+    #     player_name = player.get_player_position()
+    #     for token1 in self._current_positions[player_name]:
+    #         if token1 == token:
+    #             pass
+    #         elif self._current_positions[player_name][token1][0] == position:
+    #             self._stacked_tracker = [True, token1]
 
     def get_player_by_position(self, position):
         '''Gets the player object based on a passed in player position'''
@@ -367,99 +407,11 @@ class Recorder:
                 if player.get_player_position() == position:
                     return player
 
-    def moving_algorithm2(self, player, roll=None):
-        '''Algorithm that decides which of a player's tokens should be moved'''
-        this_player_p_position = player.get_token_position('p')
-        this_player_q_position = player.get_token_position('q')
-        opponent_positions_dict = {player_name:positions for (player_name, positions) in self.get_current_positions().items() if player_name != player.get_player_position()}
-        opponent_positions_list = []
-
-        for name in opponent_positions_dict:
-            for token in opponent_positions_dict[name]:
-                opponent_positions_list.append(opponent_positions_dict[name][token])
-
-        # handles end space and home space scenarios where neither token can move or only one token is even in a position to move
-        if this_player_p_position == 'E' and this_player_q_position == 'E':
-            return None
-        if roll != 6 and this_player_p_position == 'H' and this_player_q_position == 'H':
-            return None
-        if this_player_p_position == 'E':
-            return ['q']
-        elif this_player_q_position == 'E':
-            return ['p']
-        if roll != 6 and player.get_token_position('p') == 'H' and player.get_token_position('q') != 'H':
-            return ['q']
-        elif roll != 6 and player.get_token_position('q') == 'H' and player.get_token_position('p') != 'H':
-            return ['p']
-
-        # first priority: move out of home yard
-        if this_player_p_position == 'H' and roll == 6:
-            return ['p']
-        elif this_player_q_position == 'H' and roll == 6:
-            return ['q']
-
-        # second priority: move into end space
-        if player.get_player_position() in str(this_player_p_position):
-            if 7 - int(player.get_token_position('p')[-1]) == roll:
-                if self._stacked_tracker[player.get_player_position()]['p'] == True:
-                    return ['p', 'q']
-                else:
-                    return ['p']
-            elif this_player_q_position != 'E':
-                if self._stacked_tracker[player.get_player_position()]['p'] == True:
-                    return ['p', 'q']
-                else:
-                    return ['q']
-        elif player.get_player_position() in str(this_player_q_position):
-            if 7 - int(player.get_token_position('q')[-1]) == roll:
-                if self._stacked_tracker[player.get_player_position()]['p'] == True:
-                    return ['p', 'q']
-                else:
-                    return ['q']
-            elif this_player_p_position != 'E':
-                if self._stacked_tracker[player.get_player_position()]['p'] == True:
-                    return ['p', 'q']
-                else:
-                    return ['p']
-
-        # third priority: kicking out another player's token
-        if this_player_p_position == 'R':
-            this_player_p_position_replaced = player.get_start_space() - 1
-        else:
-            this_player_p_position_replaced = this_player_p_position
-
-        if this_player_q_position == 'R':
-            this_player_q_position_replaced = player.get_start_space() - 1
-        else:
-            this_player_q_position_replaced = this_player_q_position
-
-        if int(this_player_p_position_replaced) + roll in opponent_positions_list:
-            return 'p'
-        elif int(this_player_q_position_replaced) + roll in opponent_positions_list:
-            return 'q'
-
-        # fourth priority: moving the token that is further away
-        else:
-            if player.get_token_position('p') == 'R':
-                return ['p']
-            elif player.get_token_position('q') == 'R':
-                return ['q']
-            elif player.get_token_position('p') == player.get_token_position('q'):
-                if player.get_token_position('p') == player.get_start_space(): # no stacking if on start space
-                    return 'p'
-                else: # returns both tokens for stacking
-                    self._stacked_tracker[player.get_player_position()]['p'] = True
-                    self._stacked_tracker[player.get_player_position()]['q'] = True
-                    return ['p', 'q']
-            elif player.get_token_step_count('p') > player.get_token_step_count('q'):
-                return ['q']
-            else:
-                return ['p']
 
     def check_completed(self):
         completed_list = []
         for player in self._players:
-            if self._current_positions[player.get_player_position()]['p'][0] == player.get_player_position() + '7' and self._current_positions[player.get_player_position()]['q'][0] == player.get_player_position() + '7':
+            if self._current_positions[player.get_player_position()]['p'][0] == player.get_player_position() + '7' and self._current_positions[player.get_player_position()]['q'][0] == player.get_player_position() + '7' and self._current_positions[player.get_player_position()]['r'][0] == player.get_player_position() + '7' and self._current_positions[player.get_player_position()]['r'][0] == player.get_player_position() + '7':
                 completed_list.append(player.get_player_position())
         return completed_list
 
@@ -496,6 +448,12 @@ class Recorder:
 
         return moves_dict
 
+    def stacked_checker(self, player_name):
+        stacked_list = []
+        for token in self._stacked_tracker:
+            if self._stacked_tracker[player_name][token][0] == True:
+                stacked_list.append(token)
+        return stacked_list
 
     def move_token(self, player, token, position, player_color, player_outline):
         print('move to', position)
@@ -531,133 +489,145 @@ class Recorder:
 
                             self._current_positions[name][token][1] = my_oval
 
+        #new code
+        other_token = None
+        if self._stacked_tracker[player_name][token][0] == True:
+            other_token = self._stacked_tracker[player_name][token][1]
+        else:
+            for token1 in self._current_positions[player_name]:
+                if token1 == token:
+                    pass
+                elif self._current_positions[player_name][token1][0] == ending_position and self._stacked_tracker[player_name][token1][0] == False:
+                    other_token = token1
 
-        if self._current_positions[player_name]['p'][0] != 'H' and self._current_positions[player_name]['p'][0] == self._current_positions[player_name]['q'][0]:
-            canvas_1.delete(self._current_positions[player_name]['p'][1])
-            canvas_1.delete(self._current_positions[player_name]['q'][1])
+        if self._current_positions[player_name][token][0] != 'H' and other_token is not None:
+            canvas_1.delete(self._current_positions[player_name][token][1])
+            canvas_1.delete(self._current_positions[player_name][other_token][1])
             my_oval = canvas_1.create_oval(lookup[0], lookup[1],
                                            lookup[2], lookup[3],
                                            fill=player_color, outline=player_outline)
             my_oval2 = canvas_1.create_oval(lookup[0], lookup[1] - 10,
                                             lookup[2], lookup[3] - 10,
                                             fill=player_color, outline=player_outline)
-            self._current_positions[player_name]['p'][1] = my_oval
-            self._current_positions[player_name]['q'][1] = my_oval2
-            self._stacked_tracker[player_name]['p'] = True
-            self._stacked_tracker[player_name]['q'] = True
+            self._current_positions[player_name][token][1] = my_oval
+            self._current_positions[player_name][other_token][1] = my_oval2
+            self._stacked_tracker[player_name][token] = [True, other_token]
+            self._stacked_tracker[player_name][other_token] = [True, token]
 
 
-    def move(self, roll, player):
-        spaces = {
-                  '1': [140, 325.5, 161.5, 347], '2': [177, 325.5, 198.5, 347], '3': [215, 325.5, 236.5, 347],
-                  '4': [252, 325.5, 273.5, 347], '5': [289, 325.5, 310.5, 347],
-                  '6': [326, 289, 347.5, 310.5], '7': [326, 251, 347.5, 272.5], '8': [326, 214, 347.5, 235.5],
-                  '9': [326, 177, 347.5, 198.5], '10': [326, 139, 347.5, 160.5], '11': [326, 102, 347.5, 123.5],
-                  '12': [363, 102, 384.5, 123.5],
-                  '13': [400, 102, 421.5, 123.5], '14': [400, 139, 421.5, 160.5], '15': [400, 177, 421.5, 198.5],
-                  '16': [400, 214, 421.5, 235.5], '17': [400, 251, 421.5, 272.5], '18': [400, 289, 421.5, 310.5],
-                  '19': [437, 325.5, 458.5, 347.5], '20': [474, 325.5, 495.5, 347.5], '21': [511, 325.5, 532.5, 347.5],
-                  '22': [549, 325.5, 570.5, 347.5], '23': [586, 325.5, 607.5, 347.5], '24': [623, 325.5, 644.5, 347.5],
-                  '25': [623, 362.5, 644.5, 384],
-                  '26': [623, 399.5, 644.5, 421], '27': [586, 399.5, 607.5, 421], '28': [549, 399.5, 570.5, 421],
-                  '29': [511, 399.5, 532.5, 421], '30': [474, 399.5, 495.5, 421], '31': [437, 399.5, 458.5, 421],
-                  '32': [400, 436.5, 421.5, 458], '33': [400, 473.5, 421.5, 495], '34': [400, 511.5, 421.5, 533],
-                  '35': [400, 548.5, 421.5, 570], '36': [400, 585.5, 421.5, 607], '37': [400, 623, 421.5, 644.5],
-                  '38': [363, 623, 384.5, 644.5],
-                  '39': [326, 623, 347.5, 644.5], '40': [326, 585.5, 347.5, 607], '41': [326, 548.5, 347.5, 570],
-                  '42': [326, 511.5, 347.5, 533], '43': [326, 473.5, 347.5, 495], '44': [326, 436.5, 347.5, 458],
-                  '45': [289, 399.5, 310.5, 421], '46': [252, 399.5, 273.5, 421], '47': [215, 399.5, 236.5, 421],
-                  '48': [177, 399.5, 198.5, 421], '49': [140, 399.5, 161.5, 421], '50': [103, 399.5, 124.5, 421],
-                  '51': [103, 362.5, 124.5, 384],
-                  '52': [103, 325.5, 124.5, 347],
-                  'A1': [140, 325.5, 161.5, 347], 'A2': [140, 362.5, 161.5, 384], 'A3': [177, 362.5, 198.5, 384], 'A4': [215, 362.5, 236.5, 384], 'A5': [252, 362.5, 273.5, 384], 'A6': [289, 362.5, 310.5, 384], 'A7': [326, 362.5, 347.5, 384],
-                  'B1': [400, 139, 421.5, 160.5], 'B2': [363, 139, 384.5, 160.5], 'B3': [363, 177, 384.5, 198.5], 'B4': [363, 214, 384.5, 235.5], 'B5': [363, 251, 384.5, 272.5], 'B6': [363, 289, 384.5, 310.5], 'B7': [363, 325.5, 384.5, 347],
-                  'C1': [586, 399.5, 607.5, 421], 'C2': [586, 362.5, 607.5, 384], 'C3': [549, 362.5, 570.5, 384], 'C4': [511, 362.5, 532.5, 384], 'C5': [474, 362.5, 495.5, 384], 'C6': [437, 362.5, 458.5, 384], 'C7': [400, 362.5, 421.5, 384],
-                  'D1': [326, 585.5, 347.5, 607], 'D2': [363, 585.5, 384.5, 607], 'D3': [363, 548.5, 384.5, 570], 'D4': [363, 511.5, 384.5, 533], 'D5': [363, 473.5, 384.5, 495], 'D6': [363, 436.5, 384.5, 458], 'D7': [363, 399.5, 384.5, 421],
-                  }
-        outline_dict = {'A': [136, 136, 278, 278, ], 'B': [470, 136, 612, 278], 'C': [470, 470, 612, 612],
-                        'D': [136, 470, 278, 612]}
-        canvas_1.delete(self._current_outline) # deletes last player's cyan circle and creates a new one for the player whose turn it is
-        current_outline = canvas_1.create_oval(outline_dict[player][0], outline_dict[player][1], outline_dict[player][2], outline_dict[player][3], fill='', outline='cyan', width=7.5)
-        self._current_outline = current_outline
 
-        current_player = r1.get_player_by_position(player)
-
-        if current_player._step_count == 59:
-            pass #no movement if already on end space
-
-            token_to_move = self.moving_algorithm(current_player, roll)
-
-            if token_to_move == None:
-                pass
-            else:
-                for token in token_to_move:
-                    if self._current_positions[player][token][0] == current_player.get_player_position() + '7':
-                        pass # no movement if already on end space
-                    else:
-                        current_player.update_position_and_steps(token, roll)
-                        self.update_current_position(current_player, token)
-                        my_position = str(current_player._token_info[token]['position'])
-                        if token == 'p':
-                            other_token = 'q'
-                        elif token == 'q':
-                            other_token = 'p'
-                        if self._current_positions[player][token][0] != 'H' and self._current_positions[player][token][
-                            0] != str(current_player.get_start_space()) and self._current_positions[player][token][0] == self._current_positions[player][other_token][0]:  # for initial landing on/stacking
-                            self._stacked_tracker[player]['p'] = True
-                            self._stacked_tracker[player]['q'] = True
-
-
-                        if self._stacked_tracker[player][token] == True: #alters positioning for stacked players
-                            if token == 'p':
-                                my_oval = canvas_1.create_oval(spaces[my_position][0], spaces[my_position][1],
-                                                           spaces[my_position][2], spaces[my_position][3],
-                                                           fill=player_colors[player], outline=player_outlines[player])
-                                my_oval2 = canvas_1.create_oval(spaces[my_position][0], spaces[my_position][1]-10,
-                                                           spaces[my_position][2], spaces[my_position][3]-10,
-                                                           fill=player_colors[player], outline=player_outlines[player])
-                                canvas_1.delete(self._current_positions[player]['q'][1]) # deletes old q token
-                                self._current_positions[player]['q'][1] = my_oval2 # puts q token as raised up token
-                                canvas_1.tag_raise(my_oval)
-                            elif token == 'q': # shifts up if token q
-                                my_oval = canvas_1.create_oval(spaces[my_position][0], spaces[my_position][1]-10,
-                                                               spaces[my_position][2], spaces[my_position][3]-10,
-                                                               fill=player_colors[player],
-                                                               outline=player_outlines[player])
-
-                        else:
-                            my_oval = canvas_1.create_oval(spaces[my_position][0], spaces[my_position][1], spaces[my_position][2], spaces[my_position][3], fill = player_colors[player], outline = player_outlines[player])
-                        canvas_1.delete(self._current_positions[player][token][1])
-
-                        self._current_positions[player][token][1] = my_oval
-
-                        ending_position = self._current_positions[player][token][0]
-                        bounced = self.same_space_check(current_player, token_to_move, ending_position)
-                        if bounced is not None:
-                            for name in bounced:
-                                for player1 in self.get_players():
-                                    if name == player1.get_player_position():
-                                        for token in bounced[name]:
-                                            player1.bounced_back(token)
-                                            self._current_positions[player1.get_player_position()][
-                                                token][0] = 'H'
-                                            canvas_1.delete(self._current_positions[player1.get_player_position()][token][1])
-                                            my_oval = canvas_1.create_oval(self._starting_token_dict[name][token][0],
-                                                                         self._starting_token_dict[name][token][1],
-                                                                         self._starting_token_dict[name][token][2],
-                                                                         self._starting_token_dict[name][token][3],
-                                                                         fill=self._starting_token_dict[name][token][4],
-                                                                         outline=self._starting_token_dict[name][token][
-                                                                             5])
-
-                                            self._current_positions[name][token][1] = my_oval
-        if self._current_positions[player]['p'][0] == player + '7' and self._current_positions[player]['q'][0] == player + '7' and self._winner == None:
-            self._winner = player
-        canvas_1.tag_raise(self._current_positions[player]['q'][1])
-        canvas_1.pack()
-        if len(self.check_completed()) == 4:
-            tkinter.messagebox.showinfo('Title', 'Game Over, Player ' + self._winner +' wins!')
-            return
+    # def move(self, roll, player):
+    #     spaces = {
+    #               '1': [140, 325.5, 161.5, 347], '2': [177, 325.5, 198.5, 347], '3': [215, 325.5, 236.5, 347],
+    #               '4': [252, 325.5, 273.5, 347], '5': [289, 325.5, 310.5, 347],
+    #               '6': [326, 289, 347.5, 310.5], '7': [326, 251, 347.5, 272.5], '8': [326, 214, 347.5, 235.5],
+    #               '9': [326, 177, 347.5, 198.5], '10': [326, 139, 347.5, 160.5], '11': [326, 102, 347.5, 123.5],
+    #               '12': [363, 102, 384.5, 123.5],
+    #               '13': [400, 102, 421.5, 123.5], '14': [400, 139, 421.5, 160.5], '15': [400, 177, 421.5, 198.5],
+    #               '16': [400, 214, 421.5, 235.5], '17': [400, 251, 421.5, 272.5], '18': [400, 289, 421.5, 310.5],
+    #               '19': [437, 325.5, 458.5, 347.5], '20': [474, 325.5, 495.5, 347.5], '21': [511, 325.5, 532.5, 347.5],
+    #               '22': [549, 325.5, 570.5, 347.5], '23': [586, 325.5, 607.5, 347.5], '24': [623, 325.5, 644.5, 347.5],
+    #               '25': [623, 362.5, 644.5, 384],
+    #               '26': [623, 399.5, 644.5, 421], '27': [586, 399.5, 607.5, 421], '28': [549, 399.5, 570.5, 421],
+    #               '29': [511, 399.5, 532.5, 421], '30': [474, 399.5, 495.5, 421], '31': [437, 399.5, 458.5, 421],
+    #               '32': [400, 436.5, 421.5, 458], '33': [400, 473.5, 421.5, 495], '34': [400, 511.5, 421.5, 533],
+    #               '35': [400, 548.5, 421.5, 570], '36': [400, 585.5, 421.5, 607], '37': [400, 623, 421.5, 644.5],
+    #               '38': [363, 623, 384.5, 644.5],
+    #               '39': [326, 623, 347.5, 644.5], '40': [326, 585.5, 347.5, 607], '41': [326, 548.5, 347.5, 570],
+    #               '42': [326, 511.5, 347.5, 533], '43': [326, 473.5, 347.5, 495], '44': [326, 436.5, 347.5, 458],
+    #               '45': [289, 399.5, 310.5, 421], '46': [252, 399.5, 273.5, 421], '47': [215, 399.5, 236.5, 421],
+    #               '48': [177, 399.5, 198.5, 421], '49': [140, 399.5, 161.5, 421], '50': [103, 399.5, 124.5, 421],
+    #               '51': [103, 362.5, 124.5, 384],
+    #               '52': [103, 325.5, 124.5, 347],
+    #               'A1': [140, 325.5, 161.5, 347], 'A2': [140, 362.5, 161.5, 384], 'A3': [177, 362.5, 198.5, 384], 'A4': [215, 362.5, 236.5, 384], 'A5': [252, 362.5, 273.5, 384], 'A6': [289, 362.5, 310.5, 384], 'A7': [326, 362.5, 347.5, 384],
+    #               'B1': [400, 139, 421.5, 160.5], 'B2': [363, 139, 384.5, 160.5], 'B3': [363, 177, 384.5, 198.5], 'B4': [363, 214, 384.5, 235.5], 'B5': [363, 251, 384.5, 272.5], 'B6': [363, 289, 384.5, 310.5], 'B7': [363, 325.5, 384.5, 347],
+    #               'C1': [586, 399.5, 607.5, 421], 'C2': [586, 362.5, 607.5, 384], 'C3': [549, 362.5, 570.5, 384], 'C4': [511, 362.5, 532.5, 384], 'C5': [474, 362.5, 495.5, 384], 'C6': [437, 362.5, 458.5, 384], 'C7': [400, 362.5, 421.5, 384],
+    #               'D1': [326, 585.5, 347.5, 607], 'D2': [363, 585.5, 384.5, 607], 'D3': [363, 548.5, 384.5, 570], 'D4': [363, 511.5, 384.5, 533], 'D5': [363, 473.5, 384.5, 495], 'D6': [363, 436.5, 384.5, 458], 'D7': [363, 399.5, 384.5, 421],
+    #               }
+    #     outline_dict = {'A': [136, 136, 278, 278, ], 'B': [470, 136, 612, 278], 'C': [470, 470, 612, 612],
+    #                     'D': [136, 470, 278, 612]}
+    #     canvas_1.delete(self._current_outline) # deletes last player's cyan circle and creates a new one for the player whose turn it is
+    #     current_outline = canvas_1.create_oval(outline_dict[player][0], outline_dict[player][1], outline_dict[player][2], outline_dict[player][3], fill='', outline='cyan', width=7.5)
+    #     self._current_outline = current_outline
+    #
+    #     current_player = r1.get_player_by_position(player)
+    #
+    #     if current_player._step_count == 59:
+    #         pass #no movement if already on end space
+    #
+    #         token_to_move = self.moving_algorithm(current_player, roll)
+    #
+    #         if token_to_move == None:
+    #             pass
+    #         else:
+    #             for token in token_to_move:
+    #                 if self._current_positions[player][token][0] == current_player.get_player_position() + '7':
+    #                     pass # no movement if already on end space
+    #                 else:
+    #                     current_player.update_position_and_steps(token, roll)
+    #                     self.update_current_position(current_player, token)
+    #                     my_position = str(current_player._token_info[token]['position'])
+    #                     if token == 'p':
+    #                         other_token = 'q'
+    #                     elif token == 'q':
+    #                         other_token = 'p'
+    #
+    #                     if self._current_positions[player][token][0] != 'H' and self._current_positions[player][token][
+    #                         0] != str(current_player.get_start_space()) and self._current_positions[player][token][0] == self._current_positions[player][other_token][0]:  # for initial landing on/stacking
+    #                         self._stacked_tracker[player][token] = True
+    #                         self._stacked_tracker[player][other_token] = True
+    #
+    #
+    #                     if self._stacked_tracker[player][token] == True: #alters positioning for stacked players
+    #                         if token == 'p':
+    #                             my_oval = canvas_1.create_oval(spaces[my_position][0], spaces[my_position][1],
+    #                                                        spaces[my_position][2], spaces[my_position][3],
+    #                                                        fill=player_colors[player], outline=player_outlines[player])
+    #                             my_oval2 = canvas_1.create_oval(spaces[my_position][0], spaces[my_position][1]-10,
+    #                                                        spaces[my_position][2], spaces[my_position][3]-10,
+    #                                                        fill=player_colors[player], outline=player_outlines[player])
+    #                             canvas_1.delete(self._current_positions[player]['q'][1]) # deletes old q token
+    #                             self._current_positions[player]['q'][1] = my_oval2 # puts q token as raised up token
+    #                             canvas_1.tag_raise(my_oval)
+    #                         elif token == 'q': # shifts up if token q
+    #                             my_oval = canvas_1.create_oval(spaces[my_position][0], spaces[my_position][1]-10,
+    #                                                            spaces[my_position][2], spaces[my_position][3]-10,
+    #                                                            fill=player_colors[player],
+    #                                                            outline=player_outlines[player])
+    #
+    #                     else:
+    #                         my_oval = canvas_1.create_oval(spaces[my_position][0], spaces[my_position][1], spaces[my_position][2], spaces[my_position][3], fill = player_colors[player], outline = player_outlines[player])
+    #                     canvas_1.delete(self._current_positions[player][token][1])
+    #
+    #                     self._current_positions[player][token][1] = my_oval
+    #
+    #                     ending_position = self._current_positions[player][token][0]
+    #                     bounced = self.same_space_check(current_player, token_to_move, ending_position)
+    #                     if bounced is not None:
+    #                         for name in bounced:
+    #                             for player1 in self.get_players():
+    #                                 if name == player1.get_player_position():
+    #                                     for token in bounced[name]:
+    #                                         player1.bounced_back(token)
+    #                                         self._current_positions[player1.get_player_position()][
+    #                                             token][0] = 'H'
+    #                                         canvas_1.delete(self._current_positions[player1.get_player_position()][token][1])
+    #                                         my_oval = canvas_1.create_oval(self._starting_token_dict[name][token][0],
+    #                                                                      self._starting_token_dict[name][token][1],
+    #                                                                      self._starting_token_dict[name][token][2],
+    #                                                                      self._starting_token_dict[name][token][3],
+    #                                                                      fill=self._starting_token_dict[name][token][4],
+    #                                                                      outline=self._starting_token_dict[name][token][
+    #                                                                          5])
+    #
+    #                                         self._current_positions[name][token][1] = my_oval
+    #     if self._current_positions[player]['p'][0] == player + '7' and self._current_positions[player]['q'][0] == player + '7' and self._winner == None:
+    #         self._winner = player
+    #     canvas_1.tag_raise(self._current_positions[player]['q'][1])
+    #     canvas_1.pack()
+    #     if len(self.check_completed()) == 4:
+    #         tkinter.messagebox.showinfo('Title', 'Game Over, Player ' + self._winner +' wins!')
+    #         return
 
 
 
@@ -780,7 +750,6 @@ def get_click(event):
     player_colors = {'A': 'navy', 'B': 'red3', 'C': 'dark green', 'D': 'yellow2'}
     player_name = r1._player_turn
     player = r1.get_player_by_position(player_name)
-    print('get click rolls list', r1._rolls)
     possible_moves = r1.possible_moves(player_name, r1._rolls[-1])
     possible_clickable_spaces = {}
     for move in possible_moves:
@@ -805,14 +774,10 @@ def get_click(event):
             else:
                 player_outline = 'black'
             player_colors = {'A': 'navy', 'B': 'red3', 'C': 'dark green', 'D':'yellow2'}
-            print(r1._current_positions, 'get click current positions')
-            print(r1._stacked_tracker)
-            if r1._stacked_tracker[player_name][token] == True:
+
+            if r1._stacked_tracker[player_name][token][0] == True:
+                other_token = r1._stacked_tracker[player_name][token][1]
                 print('move_stack')
-                if token == 'p':
-                    other_token = 'q'
-                else:
-                    other_token = 'p'
                 r1.move_token(player, token, r1._current_positions[player_name][token][0], player_color,
                               player_outline)
                 player.update_position_and_steps(other_token, current_roll)
@@ -822,6 +787,8 @@ def get_click(event):
             else:
                 r1.move_token(player, token, r1._current_positions[player_name][token][0], player_color, player_outline)
             #print('clicked in a possible space!!!', possible_moves[count1])
+        print(r1._current_positions, 'get click current positions')
+        print(r1._stacked_tracker)
         count1 += 1
 
 root.bind("<Button-1>", get_click)
