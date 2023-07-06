@@ -2,7 +2,6 @@
 # Date: 9/18/22
 
 from tkinter import *
-import tkinter.messagebox
 import random
 from PIL import Image, ImageTk
 
