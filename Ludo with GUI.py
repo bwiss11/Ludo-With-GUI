@@ -6,7 +6,7 @@ import tkinter.messagebox
 import random
 from PIL import Image, ImageTk
 
-root = Tk()  # creates window for interface - first line of code
+root = Tk()  # creates window for interface - first
 root.title('Ludo')
 root.geometry('750x750') # sets size of window
 
@@ -15,11 +15,10 @@ img = Image.open("Ludo Background.png")
 resized_image = img.resize((600, 600), Image.Resampling.LANCZOS)
 new_image = ImageTk.PhotoImage(resized_image)
 canvas_1 = Canvas(root, width = 700, height = 700, bg='gray0') # Creates the canvas
-
-
 canvas_1.pack(fill = 'both', expand = True)
 canvas_1.create_image(75, 75, image = new_image, anchor = 'nw')
 
+# Defines the coordinates that each space resides in
 spaces = {
     '1': [140, 325.5, 161.5, 347], '2': [177, 325.5, 198.5, 347], '3': [215, 325.5, 236.5, 347],
     '4': [252, 325.5, 273.5, 347], '5': [289, 325.5, 310.5, 347],
@@ -144,7 +143,9 @@ class Player:
 
 
 class Recorder:
+    '''Keeps track of each player's pieces and where they are on the grid'''
     def __init__(self, player_list):
+        # Initializes all the tracking tools that are used in the game
         self._rolls = ['n']
         self._last_oval = 'None'
         self._players = []
@@ -171,7 +172,7 @@ class Recorder:
         'C': {'p': [501.75, 502, 523.25, 523.5, 'dark green', 'white'], 'q': [557.75, 502, 579.25, 523.5, 'dark green', 'white'], 'r':[501.75, 559, 523.25, 580.5, 'dark green', 'white'], 's': [557.75, 559, 579.25, 580.5, 'dark green', 'white']},
         'D': {'p': [168 ,502, 189.5, 523.5, 'yellow2', 'black'], 'q': [224 ,502, 245.5, 523.5, 'yellow2', 'black'], 'r':[168 ,559, 189.5, 580.5, 'yellow2', 'black'], 's': [224 ,559, 245.5, 580.5, 'yellow2', 'black']}}
 
-
+        # Places each player's pieces in their home area to start the game
         self._current_positions = {'A':{'p':['H', canvas_1.create_oval(self._starting_token_dict['A']['p'][0], self._starting_token_dict['A']['p'][1], self._starting_token_dict['A']['p'][2], self._starting_token_dict['A']['p'][3], fill = self._starting_token_dict['A']['p'][4], outline = self._starting_token_dict['A']['p'][5])],
                                                                        'q':['H', canvas_1.create_oval(self._starting_token_dict['A']['q'][0], self._starting_token_dict['A']['q'][1], self._starting_token_dict['A']['q'][2], self._starting_token_dict['A']['q'][3], fill = self._starting_token_dict['A']['p'][4], outline = self._starting_token_dict['A']['p'][5])],
                                         'r': ['H', canvas_1.create_oval(self._starting_token_dict['A']['r'][0], self._starting_token_dict['A']['r'][1], self._starting_token_dict['A']['r'][2], self._starting_token_dict['A']['r'][3], fill = self._starting_token_dict['A']['r'][4], outline = self._starting_token_dict['A']['r'][5])],
@@ -283,12 +284,15 @@ class Recorder:
         return self._current_positions[player][token][0]
 
     def record_roll(self, roll):
+        '''Adds the roll to the rolls tracker'''
         self.get_rolls().append(roll)
 
     def update_current_position(self, player, token):
+        '''Updates the position of a passed in player's passed in token'''
         self._current_positions[player.get_player_position()][token][0] = str(player._token_info[token]['position'])
 
     def check_finished_tokens(self, player_name):
+        '''Checks how many of the player's tokens have finished; need 4 finished tokens before any other player has 4 in order to win'''
         finished_token_counter = 0
         for token in self._current_positions[player_name]:
             if self._current_positions[player_name][token][0] == player_name + '6':
@@ -319,6 +323,7 @@ class Recorder:
             return bounced_back_dict
 
     def blocked_spaces(self):
+        '''Updates which spaces cannot be moved to'''
         self._blocked_spaces = {}
         for player_name in self._stacked_tracker:
             for token in self._stacked_tracker[player_name]:
@@ -326,6 +331,7 @@ class Recorder:
                     self._blocked_spaces[self._current_positions[player_name][token][0]] = player_name
 
     def stacked_check(self, player, token, position):
+        '''Checks if a player's token is stacked or not'''
         player_name = player.get_player_position()
         for token1 in self._current_positions[player_name]:
             if token1 == token:
@@ -349,6 +355,7 @@ class Recorder:
 
 
     def check_completed(self):
+        '''Checks how many player's have finished the game'''
         completed_list = []
         for player in self._players:
             if self._current_positions[player.get_player_position()]['p'][0] == player.get_player_position() + '6' and self._current_positions[player.get_player_position()]['q'][0] == player.get_player_position() + '6' and self._current_positions[player.get_player_position()]['r'][0] == player.get_player_position() + '6' and self._current_positions[player.get_player_position()]['r'][0] == player.get_player_position() + '6':
@@ -356,6 +363,7 @@ class Recorder:
         return completed_list
 
     def possible_moves(self, player_name, roll):
+        '''Defines the moves that the passed-in player can make based on their roll'''
         moves_dict = {}
         potential_new_step_count = None
         player = self.get_player_by_position(player_name)
@@ -392,10 +400,10 @@ class Recorder:
                     elif str(potential_new_space) not in moves_dict and str(potential_new_space) not in own_player_stacked_spaces or potential_new_space == player_name +'6':
                         moves_dict[str(potential_new_space)] = token #can only move onto already stacked space if it's the end space
 
-
         return moves_dict
 
     def stacked_checker(self, player_name):
+        '''Checks for stacked tokens'''
         stacked_list = []
         for token in self._stacked_tracker:
             if self._stacked_tracker[player_name][token][0] == True:
@@ -403,6 +411,7 @@ class Recorder:
         return stacked_list
 
     def move_token(self, player, token, position, player_color, player_outline):
+        '''Moves a player's token'''
         lookup = spaces[position]
         player_name = player.get_player_position()
         canvas_1.delete(self._current_positions[player.get_player_position()][token][1])
@@ -432,7 +441,7 @@ class Recorder:
 
                             self._current_positions[name][token1][1] = my_oval
 
-        #new code
+
         other_token = None
         if self._stacked_tracker[player_name][token][0] == True:
             other_token = self._stacked_tracker[player_name][token][1]
@@ -537,7 +546,7 @@ class Recorder:
                                                                                fill=player_color,
                                                                                outline=player_outline))
 
-
+# Creates the game's tracker
 r1 = Recorder(['A', 'B', 'C', 'D'])
 
 count = 0
@@ -567,6 +576,7 @@ spaces_rectangle = {'H': [100, 100, 100, 100],
 
 
 def roller():
+    '''Rolling mechanism for the dice and turn-taking'''
     if count == 0:
         player_name = 'A'
     if count % 4 == 1:
@@ -619,8 +629,6 @@ def roller():
                         }
 
 
-
-
     outline_dict = {'A': [136, 136, 278, 278, ], 'B': [470, 136, 612, 278], 'C': [470, 470, 612, 612],
                     'D': [136, 470, 278, 612]}
     canvas_1.delete(
@@ -667,6 +675,7 @@ def roller():
 
 
 def get_click(event):
+    '''Click handler based on x and y position of click'''
     player_colors = {'A': 'navy', 'B': 'red3', 'C': 'dark green', 'D': 'yellow2'}
     player_name = r1._player_turn
     player = r1.get_player_by_position(player_name)
@@ -696,7 +705,7 @@ def get_click(event):
         r1._sixes_counter = 0
 
     # change 40 back to 5 to get full button click to increase counter
-    if 40 < x < 85 and 1 < y < 20 and current_roll != 6 or r1._sixes_counter == 3:
+    if 5 < x < 85 and 1 < y < 20 and current_roll != 6 or r1._sixes_counter == 3:
         if next_player._completed == True:
             if next_next_player._completed == True:
                 if next_next_next_player._completed == True:
@@ -740,16 +749,12 @@ def get_click(event):
     if len(own_player_spaces) == 4 and own_player_spaces[0] == player_name + '6' and own_player_spaces[1] == player_name + '6' and own_player_spaces[2] == player_name + '6' and own_player_spaces[3] == player_name + '6':
         player.set_completed()
 
-
+# Creates roller button
 root.bind("<Button-1>", get_click)
-
-
 b1 = Button(root, text="Roll the Dice!", foreground='blue', command=roller)
 b1.bind("<Button-2>", get_click)
 b1.place(x=0, y=0)
 b1.pack()
-
-
 
 
 root.mainloop()
