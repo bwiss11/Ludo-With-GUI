@@ -8,9 +8,9 @@ This game was developed using Python, with Tkinter used for the GUI. It utilizes
 
 ## The Board
 The Ludo board is shown below. We'll go into more details on gameplay later but first, the board. There are home areas (large colored circles) for each of the four players. Each player's home area starts out holding all four of their tokens (small colored circles). The player's tokens begin by moving out of their home area and onto the space containing their corresponding color and white arrow. The tokens navigate the board clockwise until they reach their home row (string of spaces matching their color in the middle of the board). A token's path is completed by reaching their victory space (triangular shape corresponding to their color in the middle of the board).
-
+<p align="center">
 <img width="733" alt="image" src="https://github.com/bwiss11/Ludo-with-GUI/assets/79183545/be9c9d41-6228-4e1d-83cb-85b6e80917f5">
-
+</p>
 
 ## Goal
 The goal of the game is for a player to get all four of their tokens into the victory area (middle of the board) before the three other players. 
