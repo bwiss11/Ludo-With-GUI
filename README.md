@@ -1,7 +1,7 @@
 # Ludo with GUI
 
 ## Introduction
-This application is a fully interactive four-person Ludo game with a graphical user interface. Each player will have four tokens.
+This application is a fully interactive four-player Ludo game with a graphical user interface. Each player will have four tokens.
 
 This game was developed using Python, with Tkinter used for the GUI. It utilizes the 'random' and 'PIL' libraries.
 
@@ -28,7 +28,7 @@ Clicking moves one of the yellow player's tokens out onto the board [slide 2]. S
 <img width="320" alt="image" src="https://github.com/bwiss11/Ludo-with-GUI/assets/79183545/622566a0-7122-41c2-a791-1a969ad88a37"><img width="320" alt="image" src="https://github.com/bwiss11/Ludo-with-GUI/assets/79183545/00a7a400-ba45-4275-b8f3-2c1f1416b4df"><img width="320" alt="image" src="https://github.com/bwiss11/Ludo-with-GUI/assets/79183545/cb05bc3c-dd86-4a71-b5bf-89caa188e37c">
 
 ### Stacking Tokens
-Players continue to roll, with the ability to move a token out of the home area by rolling a 6. Below we see an example of the blue player rolling a 6 and now having the opportunity to either advance the token already out 6 spaces, or bring another token out of the home area [slide 1]. They choose to bring another token out, and since two tokens of the same color are on the same space, they become stacked [slide 2] and will now move together [slide 3] (stacking can be done on any space, not just the home space).
+Players continue to roll, with the ability to move a token out of the home area by rolling a 6. Below we see an example of the blue player rolling a 6 and now having the opportunity to either advance the token already out six spaces, or bring another token out of the home area [slide 1]. They choose to bring another token out, and since two tokens of the same color are on the same space, they become stacked [slide 2] and will now move together [slide 3] (stacking can be done on any space, not just the home space).
 
 <img width="320" alt="image" src="https://github.com/bwiss11/Ludo-with-GUI/assets/79183545/37c68719-5680-4e61-a379-caa5c91d51d4"><img width="320" alt="image" src="https://github.com/bwiss11/Ludo-with-GUI/assets/79183545/f9461949-5dab-4b57-a586-1aa610d5d412"><img width="320" alt="image" src="https://github.com/bwiss11/Ludo-with-GUI/assets/79183545/b4fb4461-8742-4dd5-ac90-3f0be669aac6">
 
